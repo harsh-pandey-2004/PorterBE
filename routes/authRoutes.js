@@ -1,14 +1,24 @@
-// routes/authRoutes.js
-const express = require('express');
-const { register, login, forgotPassword, resetPassword, changePassword, deleteUser } = require('../controller/authController');
-const { authenticate } = require('../middleware/authRoutes');
+const express = require("express");
 const router = express.Router();
+const authController = require("../controller/authController");
+const validationMiddleware = require("../middleware/validationMiddleware");
 
-router.post('/register', register);
-router.post('/login', login);
-router.post('/forgotPassword', forgotPassword);
-router.post('/resetPassword/:token', resetPassword);
-router.post('/changePassword', authenticate, changePassword);
-router.delete('/deleteUser', authenticate, deleteUser);
+// Routes for user registration, login, and OTP handling
+router.post(
+  "/register",
+  validationMiddleware.validateRegister,
+  authController.register
+);
+router.post(
+  "/send-otp",
+  validationMiddleware.validateSendOtp,
+  authController.sendOtp
+);
+router.post(
+  "/verify-otp",
+  validationMiddleware.validateVerifyOtp,
+  authController.verifyOtp
+);
+router.post("/login", validationMiddleware.validateLogin, authController.login);
 
 module.exports = router;
