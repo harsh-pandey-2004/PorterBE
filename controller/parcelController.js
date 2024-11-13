@@ -1,4 +1,6 @@
-const {Parcel} = require('../models/parcel');
+// const {Parcel}=require('../models/parcel');
+const Parcel = require('../models/parcel');
+
 const {DeliveryPartner} = require('../models/deliveryPartner');
 
 module.exports = {
