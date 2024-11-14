@@ -1,29 +1,33 @@
-const mongoose= require("mongoose")
+const mongoose = require("mongoose");
+
 const parcelSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   trackingNumber: { type: String, unique: true },
   from: { type: String, required: true },
   to: { type: String, required: true },
-  quantity: { type: Number, required: true },
+  quantity: { type: Number, required: false },
   productType: { type: String, required: true },
   urgency: {
     type: String,
     enum: ['regular', 'express'],
     default: 'regular'
   },
+  price: { type: Number },
   transportType: {
     type: String,
     enum: ['road', 'air', 'rail'],
     default: 'road'
   },
   dimensions: {
-    weight: { type: Number, required: true },
-    width: { type: Number, required: true },
-    height: { type: Number, required: true }
+    weight: { type: Number }, 
+    width: { type: Number },
+    height: { type: Number }
   },
-  packing: {
-    required: { type: Boolean, default: false },
-    type: Object
+  packing: { 
+    type: {
+      material: { type: String },
+      cost: { type: Number }
+    }
   },
   status: {
     type: String,
@@ -33,14 +37,17 @@ const parcelSchema = new mongoose.Schema({
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
   deliveryBids: [{
     partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
-    price: Number,
+    price: { type: Number },
     status: {
       type: String,
       enum: ['pending', 'accepted', 'rejected'],
       default: 'pending'
     },
     createdAt: { type: Date, default: Date.now }
-  }]
+  }],
+  additionalNotes: { type: String }
 }, { timestamps: true });
 
-exports.Parcel = mongoose.model('Parcel', parcelSchema);
+// Export the model
+const Parcel = mongoose.model('Parcel', parcelSchema);
+module.exports = Parcel;
