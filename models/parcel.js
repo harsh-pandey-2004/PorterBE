@@ -7,16 +7,16 @@ const parcelSchema = new mongoose.Schema({
   to: { type: String, required: true },
   quantity: { type: Number, required: false },
   productType: { type: String, required: true },
-  urgency: {
+  serviceLevel: {
     type: String,
     enum: ['regular', 'express'],
     default: 'regular'
   },
   price: { type: Number },
-  transportType: {
+  vehicleType: {
     type: String,
-    enum: ['road', 'air', 'rail'],
-    default: 'road'
+    enum: ['Tata Ace', 'Mahindra Pick up', 'Three wheeler','Ev 3 wheeler','Bike'],
+    default: 'Bike'
   },
   dimensions: {
     weight: { type: Number }, 
