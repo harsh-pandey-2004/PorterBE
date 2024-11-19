@@ -50,7 +50,7 @@ const parcelSchema = new mongoose.Schema(
         "delivered",
         "cancelled",
       ],
-      default: "pending",
+      default: "orderplaced",
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
