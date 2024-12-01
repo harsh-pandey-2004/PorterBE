@@ -166,6 +166,18 @@ module.exports = {
       res.status(500).json({ message: error.message });
     }
   },
+  deleteParcel: async (req, res) => {
+    try {
+      const { trackingNumber } = req.params;
+      const deletedParcel = await Parcel.findOneAndDelete({ trackingNumber });
+      if (!deletedParcel) {
+        return res.status(404).json({ message: "Parcel not found" });
+      }
+      res.status(200).json({ message: "Parcel deleted successfully", deletedParcel });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
 
   getParcelOffers: async (req, res) => {
     try {

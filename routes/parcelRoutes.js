@@ -7,5 +7,7 @@ router.post('/', auth, parcelController.createParcel);
 router.get('/', auth, parcelController.getParcelHistory);
 router.get('/:trackingNumber/track', parcelController.trackParcel);
 router.get('/:parcelId/offers', auth, parcelController.getParcelOffers);
+router.delete('/:trackingNumber', auth, parcelController.deleteParcel);
+
 
 module.exports = router;
