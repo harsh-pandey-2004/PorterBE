@@ -7,6 +7,17 @@ const deliveryPartnerSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    isBooked: {
+      type: Boolean,
+      default: false,
+      validate: {
+        validator: function () {
+          return !this.isBooked;
+        },
+        message: "The delivery partner is already booked.",
+      },
+    },
+    assignedParcels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Parcel" }],
     vehicleInfo: {
       vehicleRegistrationNumber: { type: String, required: true },
       vehicleType: { type: String, required: true },
@@ -43,7 +54,4 @@ const deliveryPartnerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-exports.DeliveryPartner = mongoose.model(
-  "DeliveryPartner",
-  deliveryPartnerSchema
-);
+exports.DeliveryPartner = mongoose.model("DeliveryPartner", deliveryPartnerSchema);

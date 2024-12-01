@@ -1,5 +1,6 @@
 const Parcel = require("../models/parcel");
 const { DeliveryPartner } = require("../models/deliveryPartner");
+const { User } = require("../models/user");
 const pricingRules = {
   "Tata Ace": {
     baseFare: 300,
@@ -86,9 +87,37 @@ module.exports = {
         serviceLevel,
         weight,
       } = req.body;
-      // Calculate the price based on the vehicle type, distance, and any additional fees
+
+      // Validate input
+      if (
+        !from ||
+        !to ||
+        !vehicleType ||
+        !distance ||
+        !productType ||
+        !weight
+      ) {
+        return res.status(400).json({ message: "All fields are required." });
+      }
+
       const price = calculatePrice(vehicleType, distance);
 
+      const deliveryPartner = await User.findOneAndUpdate(
+        {
+          role: "delivery_partner",
+          "address.city": from.city,
+        },
+        { $set: { isRequestcome: true } },
+        { new: true }
+      );
+
+      if (!deliveryPartner) {
+        return res.status(404).json({
+          message: "No delivery partner found in the specified city.",
+        });
+      }
+
+      // Create a new parcel
       const parcel = new Parcel({
         from,
         to,
@@ -98,12 +127,14 @@ module.exports = {
         serviceLevel,
         weight,
         price,
-        userId: req.user.id,
+        userId: req.user.id, // Assuming authenticated user
+        deliveryPartnerId: deliveryPartner._id, // Save delivery partner info
         trackingNumber: `PKG${Date.now()}${Math.floor(Math.random() * 1000)}`,
       });
 
       await parcel.save();
-      res.status(201).json(parcel);
+
+      res.status(201).json({ parcel, deliveryPartner });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

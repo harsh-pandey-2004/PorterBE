@@ -10,7 +10,7 @@ const parcelSchema = new mongoose.Schema(
     trackingNumber: { type: String, unique: true },
     from: { type: String, required: true },
     to: { type: String, required: true },
-    quantity: { type: Number, required: false },
+    quantity: { type: Number },
     productType: { type: String, required: true },
     serviceLevel: {
       type: String,
@@ -35,10 +35,8 @@ const parcelSchema = new mongoose.Schema(
       height: { type: Number },
     },
     packing: {
-      type: {
-        material: { type: String },
-        cost: { type: Number },
-      },
+      material: { type: String },
+      cost: { type: Number },
     },
     status: {
       type: String,
@@ -50,7 +48,7 @@ const parcelSchema = new mongoose.Schema(
         "delivered",
         "cancelled",
       ],
-      default: "pending",
+      default: "orderplaced",
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
@@ -76,6 +74,11 @@ const parcelSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Export the model
-const Parcel = mongoose.model("Parcel", parcelSchema);
-module.exports = Parcel;
+parcelSchema.pre("save", function (next) {
+  if (this.status === "accepted" && this.assignedTo) {
+    return next(new Error("Parcel is already assigned to another delivery partner."));
+  }
+  next();
+});
+
+module.exports = mongoose.model("Parcel", parcelSchema);
