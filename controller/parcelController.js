@@ -102,20 +102,20 @@ module.exports = {
 
       const price = calculatePrice(vehicleType, distance);
 
-      const deliveryPartner = await User.findOneAndUpdate(
-        {
-          role: "delivery_partner",
-          "address.city": from.city,
-        },
-        { $set: { isRequestcome: true } },
-        { new: true }
-      );
+      // const deliveryPartner = await User.findOneAndUpdate(
+      //   {
+      //     role: "delivery_partner",
+      //     "address.city": from.city,
+      //   },
+      //   { $set: { isRequestcome: true } },
+      //   { new: true }
+      // );
 
-      if (!deliveryPartner) {
-        return res.status(404).json({
-          message: "No delivery partner found in the specified city.",
-        });
-      }
+      // if (!deliveryPartner) {
+      //   return res.status(404).json({
+      //     message: "No delivery partner found in the specified city.",
+      //   });
+      // }
 
       // Create a new parcel
       const parcel = new Parcel({
@@ -128,13 +128,13 @@ module.exports = {
         weight,
         price,
         userId: req.user.id, // Assuming authenticated user
-        deliveryPartnerId: deliveryPartner._id, // Save delivery partner info
+        // deliveryPartnerId: deliveryPartner._id, // Save delivery partner info
         trackingNumber: `PKG${Date.now()}${Math.floor(Math.random() * 1000)}`,
       });
 
       await parcel.save();
 
-      res.status(201).json({ parcel, deliveryPartner });
+      res.status(201).json({ parcel });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
