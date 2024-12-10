@@ -76,7 +76,6 @@ module.exports = {
         return res.status(400).json({ message: "Parcel ID is required." });
       }
 
-      // Check if the parcel has already been accepted
       const parcel = await Parcel.findById(parcelId);
       if (!parcel) {
         return res.status(404).json({ message: "Parcel not found." });
@@ -89,18 +88,15 @@ module.exports = {
         });
       }
 
-      // Find the delivery partner making the request
       const partner = await DeliveryPartner.findOne({ userId: req.user.id });
       if (!partner) {
         return res.status(404).json({ message: "Delivery partner not found." });
       }
 
-      // Update the parcel status to 'accepted' and associate with this partner
       parcel.status = "accepted";
       parcel.assignedTo = partner._id;
       await parcel.save();
 
-      // Mark the delivery partner as booked
       partner.isBooked = true;
       partner.assignedParcels = [...(partner.assignedParcels || []), parcelId]; // Keep track of parcels assigned
       await partner.save();
@@ -113,5 +109,52 @@ module.exports = {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
+  },
+
+  updatedeliveryDetails: async (req, res) => {
+    upload.fields([
+      { name: "vehicleRegistrationFile", maxCount: 1 },
+      { name: "pollutionCertificateFile", maxCount: 1 },
+      { name: "aadharFile", maxCount: 1 },
+      { name: "drivingLicenseFile", maxCount: 1 },
+    ])(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+
+      try {
+        const { userId, vehicleInfo, documents, bankAccount } = req.body;
+
+        if (!userId) {
+          return res.status(400).json({ message: "User ID is required." });
+        }
+
+        const newDeliveryPartner = new DeliveryPartner({
+          userId,
+          vehicleInfo: {
+            ...vehicleInfo,
+            vehicleRegistrationFileUrl:
+              req.files?.vehicleRegistrationFile?.[0]?.path,
+            pollutionCertificateFileUrl:
+              req.files?.pollutionCertificateFile?.[0]?.path,
+          },
+          documents: {
+            ...documents,
+            aadharFileUrl: req.files?.aadharFile?.[0]?.path,
+            drivingLicenseFileUrl: req.files?.drivingLicenseFile?.[0]?.path,
+          },
+          bankAccount,
+        });
+
+        await newDeliveryPartner.save();
+
+        res.status(201).json({
+          message: "Delivery details created successfully.",
+          deliveryPartner: newDeliveryPartner,
+        });
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+      }
+    });
   },
 };

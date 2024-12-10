@@ -195,4 +195,64 @@ module.exports = {
       res.status(500).json({ message: error.message });
     }
   },
+  getAvailableParcels: async (req, res) => {
+    try {
+        const { city, vehicleType } = req.query;
+
+        // Validate input
+        if (!city || !vehicleType) {
+            return res.status(400).json({ message: "City and vehicle type are required." });
+        }
+
+        // Find parcels that are not assigned and match the city and vehicle type
+        const parcels = await Parcel.find({
+            "from": city,
+            "vehicleType": vehicleType,
+            "assignedTo": { $exists: false },
+            "status": "orderplaced"
+        });
+
+        if (!parcels.length) {
+            return res.status(404).json({ message: "No available parcels found." });
+        }
+
+        res.status(200).json(parcels);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+},
+
+acceptParcel: async (req, res) => {
+    try {
+        const { parcelId } = req.body;
+
+        // Validate input
+        if (!parcelId) {
+            return res.status(400).json({ message: "Parcel ID is required." });
+        }
+
+        const deliveryPartnerId = req.user.id; // Assuming the user is authenticated as a delivery partner
+
+        // Find the parcel and check if it is already assigned
+        const parcel = await Parcel.findOne({
+            _id: parcelId,
+            assignedTo: { $exists: false },
+            status: "orderplaced"
+        });
+
+        if (!parcel) {
+            return res.status(404).json({ message: "Parcel not available or already assigned." });
+        }
+
+        // Assign the parcel to the delivery partner and update status
+        parcel.assignedTo = deliveryPartnerId;
+        parcel.status = "pickup";
+        await parcel.save();
+
+        res.status(200).json({ message: "Parcel accepted successfully.", parcel });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 };
