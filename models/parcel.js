@@ -1,43 +1,88 @@
+// const mongoose= require("mongoose")
+// const parcelSchema = new mongoose.Schema({
+//   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+//   trackingNumber: { type: String, unique: true },
+//   from: { type: String, required: true },
+//   to: { type: String, required: true },
+//   quantity: { type: Number, required: true },
+//   productType: { type: String, required: true },
+//   urgency: {
+//     type: String,
+//     enum: ['regular', 'express'],
+//     default: 'regular'
+//   },
+//   transportType: {
+//     type: String,
+//     enum: ['bike', 'auto-rickshaw', 'van','mini-truck','truck','container'],
+//     default: 'bike'
+//   },
+//   dimensions: {
+//     weight: { type: Number, required: true },
+//     width: { type: Number, required: true },
+//     height: { type: Number, required: true }
+//   },
+//   packing: {
+//     required: { type: Boolean, default: false },
+//     type: Object
+//   },
+//   status: {
+//     type: String,
+//     enum: ['pending', 'assigned', 'in_transit', 'delivered', 'cancelled'],
+//     default: 'pending'
+//   },
+//   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+//   deliveryBids: [{
+//     partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+//     price: Number,
+//     status: {
+//       type: String,
+//       enum: ['pending', 'accepted', 'rejected'],
+//       default: 'pending'
+//     },
+//     createdAt: { type: Date, default: Date.now }
+//   }]
+// }, { timestamps: true });
+
+// exports.Parcel = mongoose.model('Parcel', parcelSchema);
+
 const mongoose = require("mongoose");
 
-const parcelSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    trackingNumber: { type: String, unique: true },
-    from: { type: String, required: true },
-    to: { type: String, required: true },
-    quantity: { type: Number },
-    productType: { type: String, required: true },
-    serviceLevel: {
-      type: String,
-      enum: ["regular", "express"],
-      default: "regular",
-    },
-    price: { type: Number },
-    vehicleType: {
-      type: String,
-      enum: [
-        "Tata Ace",
-        "Mahindra Pick up",
-        "Three wheeler",
-        "Ev 3 wheeler",
-        "Bike",
-      ],
-      default: "Bike",
-    },
-    dimensions: {
-      weight: { type: Number },
-      width: { type: Number },
-      height: { type: Number },
-    },
-    packing: {
-      material: { type: String },
-      cost: { type: Number },
-    },
+const parcelSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  trackingNumber: { type: String, unique: true },
+  from: { type: String, required: true },
+  to: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  productType: { type: String },
+  urgency: {
+    type: String,
+    enum: ['regular', 'express'],
+    default: 'regular'
+  },
+  transportType: {
+    type: String,
+    enum: ['bike', 'autoRickshaw', 'van', 'miniTruck', 'truck', 'container'],
+    default: 'bike'
+  },
+  dimensions: {
+    weight: { type: Number, required: true },
+    width: { type: Number, required: true },
+    height: { type: Number, required: true }
+  },
+  packing: {
+    required: { type: Boolean, default: false },
+    type: { type: String, default: 'standard' }
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'assigned', 'in_transit', 'delivered', 'cancelled'],
+    default: 'pending'
+  },
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+  deliveryBids: [{
+    partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+    price: Number,
+
     status: {
       type: String,
       enum: [
@@ -80,5 +125,6 @@ parcelSchema.pre("save", function (next) {
   }
   next();
 });
+
 
 module.exports = mongoose.model("Parcel", parcelSchema);

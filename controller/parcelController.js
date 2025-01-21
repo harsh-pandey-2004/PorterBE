@@ -62,6 +62,7 @@ const calculatePrice = (vehicleType, distance, additionalFees = {}) => {
     }
   }
 
+
   cost += distanceCost;
 
   // Add GST
@@ -72,6 +73,7 @@ const calculatePrice = (vehicleType, distance, additionalFees = {}) => {
   for (const fee of Object.values(additionalFees)) {
     cost += fee;
   }
+
 
   return cost;
 };
@@ -134,7 +136,8 @@ module.exports = {
 
       await parcel.save();
 
-      res.status(201).json({ parcel });
+      res.status(201).json({ parcel, deliveryPartner })
+
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -195,6 +198,7 @@ module.exports = {
       res.status(500).json({ message: error.message });
     }
   },
+
   getAvailableParcels: async (req, res) => {
     try {
         const { city, vehicleType } = req.query;
