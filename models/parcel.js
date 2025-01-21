@@ -82,13 +82,49 @@ const parcelSchema = new mongoose.Schema({
   deliveryBids: [{
     partnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
     price: Number,
+
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected'],
-      default: 'pending'
+      enum: [
+        "orderplaced",
+        "pickup",
+        "in_transit",
+        "out for delivery",
+        "delivered",
+        "cancelled",
+      ],
+      default: "orderplaced",
     },
-    createdAt: { type: Date, default: Date.now }
-  }]
-}, { timestamps: true });
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DeliveryPartner",
+    },
+    deliveryBids: [
+      {
+        partnerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "DeliveryPartner",
+        },
+        price: { type: Number },
+        status: {
+          type: String,
+          enum: ["pending", "accepted", "rejected"],
+          default: "pending",
+        },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+    additionalNotes: { type: String },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Parcel', parcelSchema);
+parcelSchema.pre("save", function (next) {
+  if (this.status === "accepted" && this.assignedTo) {
+    return next(new Error("Parcel is already assigned to another delivery partner."));
+  }
+  next();
+});
+
+
+module.exports = mongoose.model("Parcel", parcelSchema);
